@@ -25,6 +25,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
   public {{{datatypeWithEnum}}} {{getter}}() {
     return {{name}};
   }
+
   public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
     this.{{name}} = {{name}};
   }
@@ -39,9 +40,10 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    {{classname}} {{classVarName}} = ({{classname}}) o;{{#hasVars}}
-    return {{#vars}}Objects.equals({{name}}, {{classVarName}}.{{name}}){{#hasMore}} &&
-        {{/hasMore}}{{^hasMore}};{{/hasMore}}{{/vars}}{{/hasVars}}{{^hasVars}}
+    {{#hasVars}}
+    {{classname}} {{classVarName}} = ({{classname}}) o;
+    return {{#vars}}Objects.equals({{name}}, {{classVarName}}.{{name}}){{#hasMore}}
+        && {{/hasMore}}{{^hasMore}};{{/hasMore}}{{/vars}}{{/hasVars}}{{^hasVars}}
     return true;{{/hasVars}}
   }
 
@@ -52,11 +54,12 @@ public class {{classname}} {{#parent}}extends {{{parent}}}{{/parent}} {{#seriali
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class {{classname}} {\n");
-    {{#parent}}sb.append("    ").append(toIndentedString(super.toString())).append("\n");{{/parent}}
-    {{#vars}}sb.append("    {{name}}: ").append(toIndentedString({{name}})).append("\n");
-    {{/vars}}sb.append("}");
+    StringBuilder sb = new StringBuilder(256);
+    sb.append("class {{classname}} {\n{{#parent}}"    ")
+        .append(toIndentedString(super.toString())).
+        .append("\n{{/parent}}{{#vars}}    {{name}}: ")
+        .append(toIndentedString({{name}}))
+        .append("\n{{/vars}}}");
     return sb.toString();
   }
 

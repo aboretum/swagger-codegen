@@ -361,6 +361,36 @@ public class DefaultGenerator extends AbstractGenerator implements Generator {
                     });
                     Map<String, Object> operation = processOperations(config, tag, ops);
 
+                    List<String> http_method_conditions = new ArrayList<>();
+                    http_method_conditions.add("GET");
+                    http_method_conditions.add("POST");
+                    http_method_conditions.add("HEAD");
+                    http_method_conditions.add("PATCH");
+                    http_method_conditions.add("OPTIONS");
+                    http_method_conditions.add("PUT");
+                    http_method_conditions.add("DELETE");
+
+                    for(CodegenOperation co : ops) {
+                        if (co.hasParams != null && co.hasParams) {
+                            for (CodegenParameter cp: co.allParams) {
+                                if(!operation.containsKey("hasFormParam")) {
+                                    if(cp.isFormParam != null && cp.isFormParam) {
+                                        operation.put("hasFormParam", true);
+                                    }
+                                }
+                            }
+                        }
+
+                        for(String http_method : http_method_conditions) {
+                            String http_method_flag = "has" + http_method.substring(0, 1) + http_method.substring(1).toLowerCase();
+                            if(!operation.containsKey(http_method_flag)) {
+                                if (co.httpMethod.equals(http_method)) {
+                                    operation.put(http_method_flag, true);
+                                }
+                            }
+                        }
+                    }
+
                     operation.put("basePath", basePath);
                     operation.put("basePathWithoutHost", basePathWithoutHost);
                     operation.put("contextPath", contextPath);

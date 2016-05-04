@@ -1,10 +1,48 @@
 package {{apiPackage}};
 
+import java.util.Objects;
+
 {{>generatedAnnotation}}
-public class ApiException extends Exception{
-	private int code;
-	public ApiException (int code, String msg) {
-		super(msg);
-		this.code = code;
-	}
+public class ApiException extends Exception {
+    private int code;
+
+    protected ApiException(int code, String msg) {
+        super(msg);
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        {{#hasVars}}
+        {{classname}} {{classVarName}} = ({{classname}}) o;
+        return {{#vars}}Objects.equals({{name}}, {{classVarName}}.{{name}}){{#hasMore}}
+        && {{/hasMore}}{{^hasMore}};{{/hasMore}}{{/vars}}{{/hasVars}}{{^hasVars}}
+        return true;{{/hasVars}}
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash({{#vars}}{{name}}{{#hasMore}}, {{/hasMore}}{{/vars}});
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("class ApiException {\n{{#parent}}"    ")
+                .append(toIndentedString(super.toString()))
+                        .append("\n{{/parent}}{{#vars}}    {{name}}: ")
+                        .append(toIndentedString({{name}}))
+                        .append("\n{{/vars}}}");
+        return sb.toString();
+    }
 }

@@ -1,52 +1,92 @@
 package {{package}};
 
-import {{modelPackage}}.*;
-import {{package}}.{{classname}}Service;
 import {{package}}.factories.{{classname}}ServiceFactory;
-
-import io.swagger.annotations.ApiParam;
-
-import com.sun.jersey.multipart.FormDataParam;
 
 {{#imports}}import {{import}};
 {{/imports}}
 
-import java.util.List;
-import {{package}}.NotFoundException;
+{{#hasFormParam}}
 
 import java.io.InputStream;
 
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
+{{/hasFormParam}}
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.*;
+import javax.ws.rs.Path;
+{{#hasConsumes}}
+import javax.ws.rs.Consumes;
+{{/hasConsumes}}
+{{#hasProduces}}
+import javax.ws.rs.Produces;
+{{/hasProduces}}
+{{#hasGet}}
+import javax.ws.rs.GET;
+{{/hasGet}}
+{{#hasPost}}
+import javax.ws.rs.POST;
+{{/hasPost}}
+{{#hasHead}}
+import javax.ws.rs.HEAD;
+{{/hasHead}}
+{{#hasPut}}
+import javax.ws.rs.PUT;
+{{/hasPut}}
+{{#hasDelete}}
+import javax.ws.rs.DELETE;
+{{/hasDelete}}
+{{#hasOptions}}
+import javax.ws.rs.OPTIONS;
+{{/hasOptions}}
+{{#hasPatch}}
+import javax.ws.rs.PATCH;
+{{/hasPatch}}
 
 @Path("/{{baseName}}")
-{{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
-{{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
+{{#hasConsumes}}
+@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} })
+{{/hasConsumes}}
+{{#hasProduces}}
+@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} })
+{{/hasProduces}}
 @io.swagger.annotations.Api(description = "the {{baseName}} API")
 {{>generatedAnnotation}}
 {{#operations}}
 public class {{classname}}  {
-   private final {{classname}}Service delegate = {{classname}}ServiceFactory.get{{classname}}();
+    private final {{classname}}Service delegate = {{classname}}ServiceFactory.get{{classname}}();
 
 {{#operation}}
     @{{httpMethod}}
-    {{#subresourceOperation}}@Path("{{path}}"){{/subresourceOperation}}
-    {{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
-    {{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
-    @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}}, authorizations = {
-        {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#isOAuth}}, scopes = {
-            {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}", description = "{{description}}"){{#hasMore}},
+    {{#subresourceOperation}}
+    @Path("{{path}}")
+    {{/subresourceOperation}}
+    {{#hasConsumes}}
+    @Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} })
+    {{/hasConsumes}}
+    {{#hasProduces}}
+    @Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} })
+    {{/hasProduces}}
+    @io.swagger.annotations.ApiOperation(value = "{{{summary}}}",
+            notes = "{{{notes}}}",
+            response = {{{returnType}}}.class{{#returnContainer}},
+            responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasAuthMethods}},
+            authorizations = {
+        {{#authMethods}}@io.swagger.annotations.Authorization(value = "{{name}}"{{#isOAuth}},
+            scopes = {
+            {{#scopes}}@io.swagger.annotations.AuthorizationScope(scope = "{{scope}}",
+            description = "{{description}}"){{#hasMore}},
             {{/hasMore}}{{/scopes}}
         }{{/isOAuth}}){{#hasMore}},
         {{/hasMore}}{{/authMethods}}
-    }{{/hasAuthMethods}}, tags={ {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
+    }{{/hasAuthMethods}}, tags = { {{#vendorExtensions.x-tags}}"{{tag}}"{{#hasMore}}, {{/hasMore}}{{/vendorExtensions.x-tags}} })
     @io.swagger.annotations.ApiResponses(value = { {{#responses}}
-        @io.swagger.annotations.ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{returnType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}){{#hasMore}},{{/hasMore}}{{/responses}} })
+        @io.swagger.annotations.ApiResponse(code = {{{code}}},
+                message = "{{{message}}}",
+                response = {{{returnType}}}.class{{#returnContainer}},
+                responseContainer = "{{{returnContainer}}}"{{/returnContainer}}){{#hasMore}},{{/hasMore}}{{/responses}} })
     public Response {{nickname}}(
         {{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}},
         {{/allParams}}@Context SecurityContext securityContext)
@@ -54,5 +94,16 @@ public class {{classname}}  {
         return delegate.{{nickname}}({{#allParams}}{{#isFile}}inputStream, fileDetail{{/isFile}}{{^isFile}}{{paramName}}{{/isFile}},{{/allParams}}securityContext);
     }
 {{/operation}}
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(256);
+        sb.append("class {{classname}} {\n{{#parent}}"    ")
+            .append(toIndentedString(super.toString()))
+            .append("\n{{/parent}}{{#vars}}    {{name}}: ")
+            .append(toIndentedString({{name}}))
+            .append("\n{{/vars}}}");
+        return sb.toString();
+    }
 }
 {{/operations}}

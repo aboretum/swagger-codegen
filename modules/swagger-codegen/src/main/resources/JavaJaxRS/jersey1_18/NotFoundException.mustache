@@ -1,10 +1,31 @@
 package {{apiPackage}};
 
+import java.util.Objects;
+
 {{>generatedAnnotation}}
 public class NotFoundException extends ApiException {
-	private int code;
-	public NotFoundException (int code, String msg) {
-		super(code, msg);
-		this.code = code;
-	}
+
+    public NotFoundException(int code, String msg) {
+        super(code, msg);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash({{#vars}}{{name}}{{#hasMore}}, {{/hasMore}}{{/vars}});
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        {{#hasVars}}
+        {{classname}} {{classVarName}} = ({{classname}}) o;
+        return {{#vars}}Objects.equals({{name}}, {{classVarName}}.{{name}}){{#hasMore}}
+        && {{/hasMore}}{{^hasMore}};{{/hasMore}}{{/vars}}{{/hasVars}}{{^hasVars}}
+        return true;{{/hasVars}}
+    }
 }
